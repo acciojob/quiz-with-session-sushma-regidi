@@ -1,28 +1,28 @@
 // -------------------- QUIZ DATA --------------------
 const quizData = [
   {
-    question: "1. What is the capital of France?",
-    options: ["London", "Berlin", "Paris", "Madrid"],
+    question: "What is the capital of France?",
+    choices: ["London", "Berlin", "Paris", "Madrid"],
     answer: "Paris",
   },
   {
-    question: "2. Which planet is known as the Red Planet?",
-    options: ["Earth", "Mars", "Jupiter", "Venus"],
+    question: "Which planet is known as the Red Planet?",
+    choices: ["Earth", "Mars", "Jupiter", "Venus"],
     answer: "Mars",
   },
   {
-    question: "3. Who wrote 'Romeo and Juliet'?",
-    options: ["Shakespeare", "Hemingway", "Dickens", "Tolkien"],
+    question: "Who wrote 'Romeo and Juliet'?",
+    choices: ["Shakespeare", "Hemingway", "Dickens", "Tolkien"],
     answer: "Shakespeare",
   },
   {
-    question: "4. What is 2 + 2?",
-    options: ["3", "4", "5", "22"],
+    question: "What is 2 + 2?",
+    choices: ["3", "4", "5", "22"],
     answer: "4",
   },
   {
-    question: "5. Which is the largest ocean?",
-    options: ["Atlantic", "Indian", "Pacific", "Arctic"],
+    question: "Which is the largest ocean?",
+    choices: ["Atlantic", "Indian", "Pacific", "Arctic"],
     answer: "Pacific",
   },
 ];
@@ -46,26 +46,27 @@ function loadQuiz() {
     questionText.textContent = q.question;
     questionDiv.appendChild(questionText);
 
-    q.options.forEach((opt) => {
+    q.choices.forEach((choice) => {
       const label = document.createElement("label");
       const input = document.createElement("input");
       input.type = "radio";
       input.name = `q${index}`;
-      input.value = opt;
+      input.value = choice;
 
-      // Check previously selected answer from sessionStorage
-      if (progress[`q${index}`] === opt) {
+      // Restore previous selections from sessionStorage
+      if (progress[`q${index}`] === choice) {
         input.checked = true;
+        input.setAttribute("checked", "true"); // ✅ Fix for Cypress
       }
 
       // Save progress on selection
       input.addEventListener("change", () => {
-        progress[`q${index}`] = opt;
+        progress[`q${index}`] = choice;
         sessionStorage.setItem("progress", JSON.stringify(progress));
       });
 
       label.appendChild(input);
-      label.appendChild(document.createTextNode(opt));
+      label.appendChild(document.createTextNode(choice));
       questionDiv.appendChild(label);
       questionDiv.appendChild(document.createElement("br"));
     });
@@ -73,10 +74,12 @@ function loadQuiz() {
     questionsContainer.appendChild(questionDiv);
   });
 
-  // If score was saved previously, display it
+  // Show previous score if available
   const savedScore = localStorage.getItem("score");
   if (savedScore !== null) {
     scoreDiv.textContent = `Your score is ${savedScore} out of ${quizData.length}.`;
+  } else {
+    scoreDiv.textContent = "";
   }
 }
 
@@ -98,4 +101,5 @@ submitBtn.addEventListener("click", () => {
 
 // -------------------- INITIAL LOAD --------------------
 loadQuiz();
+
 
