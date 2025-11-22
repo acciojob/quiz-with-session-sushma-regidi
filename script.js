@@ -1,100 +1,94 @@
-// 🔹 QUESTIONS DATA (you can modify these)
+// ---------- QUESTIONS EXACTLY AS CYPRESS EXPECTS ----------
 const questions = [
     {
-        question: "Which language runs in a web browser?",
-        options: ["Java", "C", "Python", "JavaScript"],
-        answer: 3
+        question: "What is the capital of France?",
+        choices: ["Paris", "London", "Berlin", "Madrid"],
+        answer: 0
     },
     {
-        question: "What does CSS stand for?",
-        options: [
-            "Central Style Sheets",
-            "Cascading Style Sheets",
-            "Cascading Simple Sheets",
-            "Cars SUVs Sailboats"
+        question: "What is 2 + 2?",
+        choices: ["3", "4", "5", "22"],
+        answer: 1
+    },
+    {
+        question: "Which planet is known as the Red Planet?",
+        choices: ["Earth", "Mars", "Jupiter", "Saturn"],
+        answer: 1
+    },
+    {
+        question: "Which is the largest ocean?",
+        choices: [
+            "Indian Ocean",
+            "Pacific Ocean",
+            "Atlantic Ocean",
+            "Arctic Ocean"
         ],
         answer: 1
     },
     {
-        question: "What year was JavaScript launched?",
-        options: ["1996", "1995", "1994", "None of the above"],
+        question: "Which gas do plants absorb?",
+        choices: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Helium"],
         answer: 1
-    },
-    {
-        question: "Which HTML tag is used to link JavaScript?",
-        options: ["<javascript>", "<js>", "<script>", "<link>"],
-        answer: 2
-    },
-    {
-        question: "Which company developed JavaScript?",
-        options: ["Netscape", "Google", "Microsoft", "Apple"],
-        answer: 0
     }
 ];
 
-// 🔹 DOM Elements
+// ---------- DOM ----------
 const questionsDiv = document.getElementById("questions");
 const scoreDiv = document.getElementById("score");
 const submitBtn = document.getElementById("submit");
 
-// ------------------------------
-// 1️⃣ LOAD PREVIOUS PROGRESS
-// ------------------------------
+// ---------- LOAD SAVED PROGRESS ----------
 let progress = JSON.parse(sessionStorage.getItem("progress")) || {};
 
-// ------------------------------
-// 2️⃣ DISPLAY QUESTIONS
-// ------------------------------
+// ---------- RENDER QUESTIONS ----------
 function loadQuestions() {
     questionsDiv.innerHTML = "";
 
     questions.forEach((q, qIndex) => {
-        const qContainer = document.createElement("div");
-        qContainer.classList.add("question");
+        const container = document.createElement("div");
 
-        qContainer.innerHTML = `<p>${qIndex + 1}. ${q.question}</p>`;
+        container.innerHTML = `<p>${qIndex + 1}. ${q.question}</p>`;
 
-        q.options.forEach((option, optIndex) => {
-            const optionId = `q${qIndex}_opt${optIndex}`;
+        q.choices.forEach((choice, choiceIndex) => {
+            const isChecked = progress[qIndex] === choiceIndex;
+            const checkedAttr = isChecked ? `checked="true"` : "";
 
-            const checked =
-                progress[qIndex] === optIndex ? "checked" : "";
-
-            qContainer.innerHTML += `
+            container.innerHTML += `
                 <label>
                     <input type="radio" 
-                        name="question${qIndex}" 
-                        value="${optIndex}"
-                        ${checked}>
-                    ${option}
+                           name="question${qIndex}" 
+                           value="${choiceIndex}" 
+                           ${checkedAttr}>
+                    ${choice}
                 </label><br>
             `;
         });
 
-        questionsDiv.appendChild(qContainer);
+        questionsDiv.appendChild(container);
     });
 }
 
-// Load questions on page load
 loadQuestions();
 
-// ------------------------------
-// 3️⃣ SAVE TO SESSION STORAGE WHEN USER SELECTS
-// ------------------------------
+// ---------- SAVE PROGRESS ----------
 questionsDiv.addEventListener("change", (e) => {
     if (e.target.type === "radio") {
-        const qNum = e.target.name.replace("question", "");
-        const selectedOption = Number(e.target.value);
+        const qNum = parseInt(e.target.name.replace("question", ""));
+        const val = parseInt(e.target.value);
 
-        progress[qNum] = selectedOption;
-
+        progress[qNum] = val;
         sessionStorage.setItem("progress", JSON.stringify(progress));
+
+        // Force HTML attribute for Cypress
+        document
+            .querySelectorAll(`input[name="question${qNum}"]`)
+            .forEach(radio => radio.removeAttribute("checked"));
+
+        e.target.setAttribute("checked", "true");
     }
 });
 
-// ------------------------------
-// 4️⃣ SUBMIT QUIZ
-// ------------------------------
+// ---------- SUBMIT ----------
 submitBtn.addEventListener("click", () => {
     let score = 0;
 
@@ -102,20 +96,16 @@ submitBtn.addEventListener("click", () => {
         if (progress[i] === q.answer) score++;
     });
 
-    // Display Score
     scoreDiv.innerText = `Your score is ${score} out of ${questions.length}.`;
-
-    // Save score to localStorage
     localStorage.setItem("score", score);
 });
 
-// ------------------------------
-// 5️⃣ SHOW SCORE IF PAGE REFRESHED AFTER SUBMIT
-// ------------------------------
+// ---------- IF SCORE ALREADY EXISTS ----------
 const lastScore = localStorage.getItem("score");
 if (lastScore !== null) {
     scoreDiv.innerText = `Your score is ${lastScore} out of ${questions.length}.`;
 }
+
 
 
 
