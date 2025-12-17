@@ -1,110 +1,102 @@
-// ---------- QUESTIONS EXACTLY AS CYPRESS EXPECTS ----------
-const questions = [
-    {
-        question: "What is the capital of France?",
-        choices: ["Paris", "London", "Berlin", "Madrid"],
-        answer: 0
-    },
-    {
-        question: "What is 2 + 2?",
-        choices: ["3", "4", "5", "22"],
-        answer: 1
-    },
-    {
-        question: "Which planet is known as the Red Planet?",
-        choices: ["Earth", "Mars", "Jupiter", "Saturn"],
-        answer: 1
-    },
-    {
-        question: "Which is the largest ocean?",
-        choices: [
-            "Indian Ocean",
-            "Pacific Ocean",
-            "Atlantic Ocean",
-            "Arctic Ocean"
-        ],
-        answer: 1
-    },
-    {
-        question: "Which gas do plants absorb?",
-        choices: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Helium"],
-        answer: 1
-    }
-];
+document.addEventListener("DOMContentLoaded", () => {
+    const questionsContainer = document.getElementById("questions");
+    const submitBtn = document.getElementById("submit");
+    const scoreDiv = document.getElementById("score");
 
-// ---------- DOM ----------
-const questionsDiv = document.getElementById("questions");
-const scoreDiv = document.getElementById("score");
-const submitBtn = document.getElementById("submit");
+    // Quiz data (5 questions, 4 options each)
+    const quizData = [
+        {
+            question: "What is 2 + 2?",
+            options: ["1", "2", "3", "4"],
+            answer: "3"
+        },
+        {
+            question: "Capital of India?",
+            options: ["Mumbai", "Delhi", "Chennai", "Kolkata"],
+            answer: "1"
+        },
+        {
+            question: "Which is a JavaScript framework?",
+            options: ["React", "Laravel", "Django", "Flask"],
+            answer: "0"
+        },
+        {
+            question: "HTML stands for?",
+            options: [
+                "Hyper Text Markup Language",
+                "High Text Machine Language",
+                "Hyperlinks Text Mark Language",
+                "None"
+            ],
+            answer: "0"
+        },
+        {
+            question: "Which keyword declares a variable in JS?",
+            options: ["int", "var", "string", "float"],
+            answer: "1"
+        }
+    ];
 
-// ---------- LOAD SAVED PROGRESS ----------
-let progress = JSON.parse(sessionStorage.getItem("progress")) || {};
+    // Load saved progress from sessionStorage
+    const savedProgress = JSON.parse(sessionStorage.getItem("progress")) || {};
 
-// ---------- RENDER QUESTIONS ----------
-function loadQuestions() {
-    questionsDiv.innerHTML = "";
+    // Render questions
+    quizData.forEach((q, qIndex) => {
+        const div = document.createElement("div");
 
-    questions.forEach((q, qIndex) => {
-        const container = document.createElement("div");
+        const questionTitle = document.createElement("p");
+        questionTitle.textContent = q.question;
+        div.appendChild(questionTitle);
 
-        container.innerHTML = `<p>${qIndex + 1}. ${q.question}</p>`;
+        q.options.forEach((opt, optIndex) => {
+            const label = document.createElement("label");
+            const radio = document.createElement("input");
 
-        q.choices.forEach((choice, choiceIndex) => {
-            const isChecked = progress[qIndex] === choiceIndex;
-            const checkedAttr = isChecked ? `checked="true"` : "";
+            radio.type = "radio";
+            radio.name = `q${qIndex}`;
+            radio.value = optIndex;
 
-            container.innerHTML += `
-                <label>
-                    <input type="radio" 
-                           name="question${qIndex}" 
-                           value="${choiceIndex}" 
-                           ${checkedAttr}>
-                    ${choice}
-                </label><br>
-            `;
+            // Restore checked state
+            if (savedProgress[`q${qIndex}`] === String(optIndex)) {
+                radio.checked = true;
+            }
+
+            // Save selection to sessionStorage
+            radio.addEventListener("change", () => {
+                savedProgress[`q${qIndex}`] = radio.value;
+                sessionStorage.setItem("progress", JSON.stringify(savedProgress));
+            });
+
+            label.appendChild(radio);
+            label.appendChild(document.createTextNode(opt));
+            div.appendChild(label);
+            div.appendChild(document.createElement("br"));
         });
 
-        questionsDiv.appendChild(container);
+        questionsContainer.appendChild(div);
     });
-}
 
-loadQuestions();
-
-// ---------- SAVE PROGRESS ----------
-questionsDiv.addEventListener("change", (e) => {
-    if (e.target.type === "radio") {
-        const qNum = parseInt(e.target.name.replace("question", ""));
-        const val = parseInt(e.target.value);
-
-        progress[qNum] = val;
-        sessionStorage.setItem("progress", JSON.stringify(progress));
-
-        // Force HTML attribute for Cypress
-        document
-            .querySelectorAll(`input[name="question${qNum}"]`)
-            .forEach(radio => radio.removeAttribute("checked"));
-
-        e.target.setAttribute("checked", "true");
+    // Restore score from localStorage (if exists)
+    const savedScore = localStorage.getItem("score");
+    if (savedScore !== null) {
+        scoreDiv.textContent = `Your score is ${savedScore} out of 5.`;
     }
-});
 
-// ---------- SUBMIT ----------
-submitBtn.addEventListener("click", () => {
-    let score = 0;
+    // Submit handler
+    submitBtn.addEventListener("click", () => {
+        let score = 0;
 
-    questions.forEach((q, i) => {
-        if (progress[i] === q.answer) score++;
+        quizData.forEach((q, index) => {
+            if (savedProgress[`q${index}`] === q.answer) {
+                score++;
+            }
+        });
+
+        scoreDiv.textContent = `Your score is ${score} out of 5.`;
+        localStorage.setItem("score", score);
     });
-
-    scoreDiv.innerText = `Your score is ${score} out of ${questions.length}.`;
-    localStorage.setItem("score", score);
 });
 
-// ---------- IF SCORE ALREADY EXISTS ----------
-const lastScore = localStorage.getItem("score");
-if (lastScore !== null) {
-    scoreDiv.innerText = `Your score is ${lastScore} out of ${questions.length}.`;
-}
 
 
 
