@@ -1,93 +1,81 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const questionsContainer = document.getElementById("questions");
+    const questionsDiv = document.getElementById("questions");
     const submitBtn = document.getElementById("submit");
     const scoreDiv = document.getElementById("score");
 
-    // Quiz data (5 questions, 4 options each)
-    const quizData = [
+    const questions = [
         {
-            question: "What is 2 + 2?",
-            options: ["1", "2", "3", "4"],
-            answer: "3"
+            question: "What is the capital of France?",
+            choices: ["Paris", "London", "Berlin", "Madrid"],
+            answer: "Paris"
         },
         {
-            question: "Capital of India?",
-            options: ["Mumbai", "Delhi", "Chennai", "Kolkata"],
-            answer: "1"
+            question: "Which language runs in a web browser?",
+            choices: ["Java", "C", "Python", "JavaScript"],
+            answer: "JavaScript"
         },
         {
-            question: "Which is a JavaScript framework?",
-            options: ["React", "Laravel", "Django", "Flask"],
-            answer: "0"
-        },
-        {
-            question: "HTML stands for?",
-            options: [
-                "Hyper Text Markup Language",
-                "High Text Machine Language",
-                "Hyperlinks Text Mark Language",
-                "None"
+            question: "What does CSS stand for?",
+            choices: [
+                "Cascading Style Sheets",
+                "Computer Style Sheets",
+                "Creative Style System",
+                "Colorful Style Sheets"
             ],
-            answer: "0"
+            answer: "Cascading Style Sheets"
         },
         {
-            question: "Which keyword declares a variable in JS?",
-            options: ["int", "var", "string", "float"],
-            answer: "1"
+            question: "What year was JavaScript launched?",
+            choices: ["1996", "1995", "1994", "none"],
+            answer: "1995"
+        },
+        {
+            question: "Which HTML tag is used for JavaScript?",
+            choices: ["<script>", "<js>", "<javascript>", "<code>"],
+            answer: "<script>"
         }
     ];
 
-    // Load saved progress from sessionStorage
-    const savedProgress = JSON.parse(sessionStorage.getItem("progress")) || {};
+    let progress = JSON.parse(sessionStorage.getItem("progress")) || {};
 
     // Render questions
-    quizData.forEach((q, qIndex) => {
-        const div = document.createElement("div");
+    questions.forEach((q, qi) => {
+        const qDiv = document.createElement("div");
+        qDiv.innerHTML = q.question;
 
-        const questionTitle = document.createElement("p");
-        questionTitle.textContent = q.question;
-        div.appendChild(questionTitle);
+        q.choices.forEach(choice => {
+            const input = document.createElement("input");
+            input.type = "radio";
+            input.name = `q${qi}`;
+            input.value = choice;
 
-        q.options.forEach((opt, optIndex) => {
-            const label = document.createElement("label");
-            const radio = document.createElement("input");
-
-            radio.type = "radio";
-            radio.name = `q${qIndex}`;
-            radio.value = optIndex;
-
-            // Restore checked state
-            if (savedProgress[`q${qIndex}`] === String(optIndex)) {
-                radio.checked = true;
+            // Restore checked state (IMPORTANT for Cypress)
+            if (progress[`q${qi}`] === choice) {
+                input.setAttribute("checked", "true");
             }
 
-            // Save selection to sessionStorage
-            radio.addEventListener("change", () => {
-                savedProgress[`q${qIndex}`] = radio.value;
-                sessionStorage.setItem("progress", JSON.stringify(savedProgress));
+            input.addEventListener("click", () => {
+                progress[`q${qi}`] = choice;
+                sessionStorage.setItem("progress", JSON.stringify(progress));
             });
 
-            label.appendChild(radio);
-            label.appendChild(document.createTextNode(opt));
-            div.appendChild(label);
-            div.appendChild(document.createElement("br"));
+            qDiv.appendChild(input);
         });
 
-        questionsContainer.appendChild(div);
+        questionsDiv.appendChild(qDiv);
     });
 
-    // Restore score from localStorage (if exists)
-    const savedScore = localStorage.getItem("score");
-    if (savedScore !== null) {
-        scoreDiv.textContent = `Your score is ${savedScore} out of 5.`;
+    // Restore score if exists
+    const storedScore = localStorage.getItem("score");
+    if (storedScore !== null) {
+        scoreDiv.textContent = `Your score is ${storedScore} out of 5.`;
     }
 
-    // Submit handler
     submitBtn.addEventListener("click", () => {
         let score = 0;
 
-        quizData.forEach((q, index) => {
-            if (savedProgress[`q${index}`] === q.answer) {
+        questions.forEach((q, i) => {
+            if (progress[`q${i}`] === q.answer) {
                 score++;
             }
         });
@@ -96,6 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem("score", score);
     });
 });
+
 
 
 
