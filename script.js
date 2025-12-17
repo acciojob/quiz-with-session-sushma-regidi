@@ -3,59 +3,29 @@ document.addEventListener("DOMContentLoaded", () => {
     const submitBtn = document.getElementById("submit");
     const scoreDiv = document.getElementById("score");
 
-    const questions = [
-        {
-            question: "What is the capital of France?",
-            choices: ["Paris", "London", "Berlin", "Madrid"],
-            answer: "Paris"
-        },
-        {
-            question: "Which language runs in a web browser?",
-            choices: ["Java", "C", "Python", "JavaScript"],
-            answer: "JavaScript"
-        },
-        {
-            question: "What does CSS stand for?",
-            choices: [
-                "Cascading Style Sheets",
-                "Computer Style Sheets",
-                "Creative Style System",
-                "Colorful Style Sheets"
-            ],
-            answer: "Cascading Style Sheets"
-        },
-        {
-            question: "What year was JavaScript launched?",
-            choices: ["1996", "1995", "1994", "none"],
-            answer: "1995"
-        },
-        {
-            question: "Which HTML tag is used for JavaScript?",
-            choices: ["<script>", "<js>", "<javascript>", "<code>"],
-            answer: "<script>"
-        }
-    ];
+    // IMPORTANT: Use questions provided by Cypress / HTML
+    const quizQuestions = window.questions;
 
     let progress = JSON.parse(sessionStorage.getItem("progress")) || {};
 
     // Render questions
-    questions.forEach((q, qi) => {
+    quizQuestions.forEach((q, qIndex) => {
         const qDiv = document.createElement("div");
-        qDiv.innerHTML = q.question;
+        qDiv.textContent = q.question;
 
-        q.choices.forEach(choice => {
+        q.choices.forEach((choice, cIndex) => {
             const input = document.createElement("input");
             input.type = "radio";
-            input.name = `q${qi}`;
+            input.name = `q${qIndex}`;
             input.value = choice;
 
-            // Restore checked state (IMPORTANT for Cypress)
-            if (progress[`q${qi}`] === choice) {
+            // Restore checked state (Cypress checks attribute!)
+            if (progress[`q${qIndex}`] === choice) {
                 input.setAttribute("checked", "true");
             }
 
             input.addEventListener("click", () => {
-                progress[`q${qi}`] = choice;
+                progress[`q${qIndex}`] = choice;
                 sessionStorage.setItem("progress", JSON.stringify(progress));
             });
 
@@ -68,22 +38,24 @@ document.addEventListener("DOMContentLoaded", () => {
     // Restore score if exists
     const storedScore = localStorage.getItem("score");
     if (storedScore !== null) {
-        scoreDiv.textContent = `Your score is ${storedScore} out of 5.`;
+        scoreDiv.textContent = `Your score is ${storedScore} out of ${quizQuestions.length}.`;
     }
 
     submitBtn.addEventListener("click", () => {
         let score = 0;
 
-        questions.forEach((q, i) => {
+        quizQuestions.forEach((q, i) => {
             if (progress[`q${i}`] === q.answer) {
                 score++;
             }
         });
 
-        scoreDiv.textContent = `Your score is ${score} out of 5.`;
-        localStorage.setItem("score", score);
+        scoreDiv.textContent = `Your score is ${score} out of ${quizQuestions.length}.`;
+        localStorage.setItem("score", score.toString());
     });
 });
+
+
 
 
 
