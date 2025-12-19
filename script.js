@@ -1,79 +1,47 @@
-// Questions data
-const questionsData = [
-  {
-    question: "What is the capital of France?",
-    options: ["Berlin", "Paris", "Madrid", "Rome"]
-  },
-  {
-    question: "Which language runs in a web browser?",
-    options: ["Java", "C", "Python", "JavaScript"]
-  },
-  {
-    question: "What does CSS stand for?",
-    options: [
-      "Cascading Style Sheets",
-      "Creative Style System",
-      "Colorful Style Sheets",
-      "Computer Style Sheets"
-    ]
-  },
-  {
-    question: "Which HTML tag is used for JavaScript?",
-    options: ["<js>", "<javascript>", "<script>", "<code>"]
-  },
-  {
-    question: "Which company developed JavaScript?",
-    options: ["Microsoft", "Netscape", "Google", "Oracle"]
-  }
-];
-
-// Correct answers index
-const correctAnswers = [1, 3, 0, 2, 1];
-
 const questionsContainer = document.getElementById("questions");
-const submitButton = document.getElementById("submit");
+const submitBtn = document.getElementById("submit");
 const scoreDiv = document.getElementById("score");
 
-// Load saved progress from sessionStorage
-const savedProgress = JSON.parse(sessionStorage.getItem("progress")) || {};
+// Load session progress
+let progress = JSON.parse(sessionStorage.getItem("progress")) || {};
 
-// Render questions
+// Render quiz
 function renderQuestions() {
   questionsContainer.innerHTML = "";
 
-  questionsData.forEach((q, qIndex) => {
-    const questionDiv = document.createElement("div");
+  questions.forEach((q, qIndex) => {
+    const qDiv = document.createElement("div");
 
-    const questionTitle = document.createElement("p");
-    questionTitle.textContent = q.question;
-    questionDiv.appendChild(questionTitle);
+    // Question text (ONLY the question)
+    qDiv.appendChild(document.createTextNode(q.question));
 
-    q.options.forEach((option, optIndex) => {
-      const label = document.createElement("label");
-      const radio = document.createElement("input");
+    q.choices.forEach((choice) => {
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = `question-${qIndex}`;
+      input.value = choice;
 
-      radio.type = "radio";
-      radio.name = `question-${qIndex}`;
-      radio.value = optIndex;
-
-      // Restore checked state from sessionStorage
-      if (savedProgress[qIndex] === optIndex) {
-        radio.checked = true;
+      // Restore checked attribute for Cypress
+      if (progress[qIndex] === choice) {
+        input.setAttribute("checked", "true");
       }
 
-      // Save progress on change
-      radio.addEventListener("change", () => {
-        savedProgress[qIndex] = optIndex;
-        sessionStorage.setItem("progress", JSON.stringify(savedProgress));
+      input.addEventListener("click", () => {
+        progress[qIndex] = choice;
+        sessionStorage.setItem("progress", JSON.stringify(progress));
+
+        // Remove checked from siblings
+        document
+          .getElementsByName(`question-${qIndex}`)
+          .forEach(r => r.removeAttribute("checked"));
+
+        input.setAttribute("checked", "true");
       });
 
-      label.appendChild(radio);
-      label.appendChild(document.createTextNode(option));
-      questionDiv.appendChild(label);
-      questionDiv.appendChild(document.createElement("br"));
+      qDiv.appendChild(input);
     });
 
-    questionsContainer.appendChild(questionDiv);
+    questionsContainer.appendChild(qDiv);
   });
 }
 
@@ -81,8 +49,8 @@ function renderQuestions() {
 function calculateScore() {
   let score = 0;
 
-  Object.keys(savedProgress).forEach((qIndex) => {
-    if (savedProgress[qIndex] === correctAnswers[qIndex]) {
+  questions.forEach((q, index) => {
+    if (progress[index] === q.answer) {
       score++;
     }
   });
@@ -90,26 +58,22 @@ function calculateScore() {
   return score;
 }
 
-// Handle submit
-submitButton.addEventListener("click", () => {
+// Submit quiz
+submitBtn.addEventListener("click", () => {
   const score = calculateScore();
   scoreDiv.textContent = `Your score is ${score} out of 5.`;
-
-  // Save score to localStorage
-  localStorage.setItem("score", score);
+  localStorage.setItem("score", score.toString());
 });
 
-// Load previous score from localStorage
-function loadPreviousScore() {
-  const storedScore = localStorage.getItem("score");
-  if (storedScore !== null) {
-    scoreDiv.textContent = `Your score is ${storedScore} out of 5.`;
-  }
+// Restore score after refresh
+const storedScore = localStorage.getItem("score");
+if (storedScore !== null) {
+  scoreDiv.textContent = `Your score is ${storedScore} out of 5.`;
 }
 
-// Initialize
+// Init
 renderQuestions();
-loadPreviousScore();
+
 
 
 
