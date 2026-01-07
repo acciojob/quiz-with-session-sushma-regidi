@@ -1,1 +1,25 @@
 /*  your css code here. If applicable */
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+#questions > div {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+label {
+  cursor: pointer;
+}
+
+button {
+  padding: 8px 15px;
+  margin-top: 10px;
+}
+
+#score {
+  margin-top: 15px;
+  font-weight: bold;
+}

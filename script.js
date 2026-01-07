@@ -1,78 +1,95 @@
-const questionsContainer = document.getElementById("questions");
-const submitBtn = document.getElementById("submit");
-const scoreDiv = document.getElementById("score");
+const quizData = [
+  {
+    question: "What is 2 + 2?",
+    options: ["1", "2", "3", "4"],
+    answer: "4"
+  },
+  {
+    question: "Capital of India?",
+    options: ["Mumbai", "Delhi", "Chennai", "Kolkata"],
+    answer: "Delhi"
+  },
+  {
+    question: "Which is a JavaScript framework?",
+    options: ["HTML", "CSS", "React", "SQL"],
+    answer: "React"
+  },
+  {
+    question: "Which keyword is used to declare a variable?",
+    options: ["var", "loop", "array", "string"],
+    answer: "var"
+  },
+  {
+    question: "Which symbol is used for comments in JS?",
+    options: ["//", "##", "<!-- -->", "**"],
+    answer: "//"
+  }
+];
 
-// Load session progress
+const questionsDiv = document.getElementById("questions");
+const scoreDiv = document.getElementById("score");
+const submitBtn = document.getElementById("submit");
+
+// Load progress from sessionStorage
 let progress = JSON.parse(sessionStorage.getItem("progress")) || {};
 
 // Render quiz
-function renderQuestions() {
-  questionsContainer.innerHTML = "";
+quizData.forEach((q, index) => {
+  const qDiv = document.createElement("div");
 
-  questions.forEach((q, qIndex) => {
-    const qDiv = document.createElement("div");
+  const questionText = document.createElement("p");
+  questionText.textContent = q.question;
+  qDiv.appendChild(questionText);
 
-    // Question text (ONLY the question)
-    qDiv.appendChild(document.createTextNode(q.question));
+  q.options.forEach(option => {
+    const label = document.createElement("label");
+    const radio = document.createElement("input");
 
-    q.choices.forEach((choice) => {
-      const input = document.createElement("input");
-      input.type = "radio";
-      input.name = `question-${qIndex}`;
-      input.value = choice;
+    radio.type = "radio";
+    radio.name = `question-${index}`;
+    radio.value = option;
 
-      // Restore checked attribute for Cypress
-      if (progress[qIndex] === choice) {
-        input.setAttribute("checked", "true");
-      }
+    // Restore checked state
+    if (progress[index] === option) {
+      radio.checked = true;
+    }
 
-      input.addEventListener("click", () => {
-        progress[qIndex] = choice;
-        sessionStorage.setItem("progress", JSON.stringify(progress));
-
-        // Remove checked from siblings
-        document
-          .getElementsByName(`question-${qIndex}`)
-          .forEach(r => r.removeAttribute("checked"));
-
-        input.setAttribute("checked", "true");
-      });
-
-      qDiv.appendChild(input);
+    // Save progress
+    radio.addEventListener("change", () => {
+      progress[index] = option;
+      sessionStorage.setItem("progress", JSON.stringify(progress));
     });
 
-    questionsContainer.appendChild(qDiv);
+    label.appendChild(radio);
+    label.appendChild(document.createTextNode(option));
+
+    qDiv.appendChild(label);
+    qDiv.appendChild(document.createElement("br"));
   });
+
+  questionsDiv.appendChild(qDiv);
+});
+
+// Load stored score from localStorage
+const savedScore = localStorage.getItem("score");
+if (savedScore !== null) {
+  scoreDiv.textContent = `Your score is ${savedScore} out of 5.`;
 }
 
-// Calculate score
-function calculateScore() {
+// Submit quiz
+submitBtn.addEventListener("click", () => {
   let score = 0;
 
-  questions.forEach((q, index) => {
+  quizData.forEach((q, index) => {
     if (progress[index] === q.answer) {
       score++;
     }
   });
 
-  return score;
-}
-
-// Submit quiz
-submitBtn.addEventListener("click", () => {
-  const score = calculateScore();
   scoreDiv.textContent = `Your score is ${score} out of 5.`;
-  localStorage.setItem("score", score.toString());
+  localStorage.setItem("score", score);
 });
 
-// Restore score after refresh
-const storedScore = localStorage.getItem("score");
-if (storedScore !== null) {
-  scoreDiv.textContent = `Your score is ${storedScore} out of 5.`;
-}
-
-// Init
-renderQuestions();
 
 
 
