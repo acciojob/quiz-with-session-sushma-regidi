@@ -1,28 +1,38 @@
-const quizData = [
+const questions = [
   {
-    question: "What is 2 + 2?",
-    options: ["1", "2", "3", "4"],
-    answer: "4"
+    question: "What is the capital of France?",
+    choices: ["Paris", "Berlin", "Madrid", "Rome"],
+    answer: "Paris"
   },
   {
-    question: "Capital of India?",
-    options: ["Mumbai", "Delhi", "Chennai", "Kolkata"],
-    answer: "Delhi"
+    question: "Which language runs in a web browser?",
+    choices: ["JavaScript", "Java", "Python", "C"],
+    answer: "JavaScript"
   },
   {
-    question: "Which is a JavaScript framework?",
-    options: ["HTML", "CSS", "React", "SQL"],
-    answer: "React"
+    question: "What does CSS stand for?",
+    choices: [
+      "Cascading Style Sheets",
+      "Colorful Style Sheets",
+      "Creative Style Sheets",
+      "Computer Style Sheets"
+    ],
+    answer: "Cascading Style Sheets"
   },
   {
-    question: "Which keyword is used to declare a variable?",
-    options: ["var", "loop", "array", "string"],
-    answer: "var"
+    question: "What does HTML stand for?",
+    choices: [
+      "Hyper Text Markup Language",
+      "High Text Markup Language",
+      "Hyperlinks Text Mark Language",
+      "Home Tool Markup Language"
+    ],
+    answer: "Hyper Text Markup Language"
   },
   {
-    question: "Which symbol is used for comments in JS?",
-    options: ["//", "##", "<!-- -->", "**"],
-    answer: "//"
+    question: "What year was JavaScript launched?",
+    choices: ["1996", "1995", "1994", "None"],
+    answer: "1995"
   }
 ];
 
@@ -30,57 +40,55 @@ const questionsDiv = document.getElementById("questions");
 const scoreDiv = document.getElementById("score");
 const submitBtn = document.getElementById("submit");
 
-// Load progress from sessionStorage
+// Load progress
 let progress = JSON.parse(sessionStorage.getItem("progress")) || {};
 
-// Render quiz
-quizData.forEach((q, index) => {
+// Render questions
+questions.forEach((q, index) => {
   const qDiv = document.createElement("div");
+  qDiv.innerHTML = `<p>${q.question}</p>`;
 
-  const questionText = document.createElement("p");
-  questionText.textContent = q.question;
-  qDiv.appendChild(questionText);
+  q.choices.forEach(choice => {
+    const input = document.createElement("input");
+    input.type = "radio";
+    input.name = `q${index}`;
+    input.value = choice;
 
-  q.options.forEach(option => {
-    const label = document.createElement("label");
-    const radio = document.createElement("input");
-
-    radio.type = "radio";
-    radio.name = `question-${index}`;
-    radio.value = option;
-
-    // Restore checked state
-    if (progress[index] === option) {
-      radio.checked = true;
+    // Restore checked attribute
+    if (progress[index] === choice) {
+      input.setAttribute("checked", "true");
     }
 
-    // Save progress
-    radio.addEventListener("change", () => {
-      progress[index] = option;
+    input.addEventListener("change", () => {
+      // Remove checked from siblings
+      document
+        .querySelectorAll(`input[name="q${index}"]`)
+        .forEach(r => r.removeAttribute("checked"));
+
+      input.setAttribute("checked", "true");
+      progress[index] = choice;
       sessionStorage.setItem("progress", JSON.stringify(progress));
     });
 
-    label.appendChild(radio);
-    label.appendChild(document.createTextNode(option));
-
-    qDiv.appendChild(label);
+    qDiv.appendChild(input);
+    qDiv.appendChild(document.createTextNode(choice));
     qDiv.appendChild(document.createElement("br"));
   });
 
   questionsDiv.appendChild(qDiv);
 });
 
-// Load stored score from localStorage
-const savedScore = localStorage.getItem("score");
-if (savedScore !== null) {
-  scoreDiv.textContent = `Your score is ${savedScore} out of 5.`;
+// Restore score
+const storedScore = localStorage.getItem("score");
+if (storedScore !== null) {
+  scoreDiv.textContent = `Your score is ${storedScore} out of 5.`;
 }
 
-// Submit quiz
+// Submit
 submitBtn.addEventListener("click", () => {
   let score = 0;
 
-  quizData.forEach((q, index) => {
+  questions.forEach((q, index) => {
     if (progress[index] === q.answer) {
       score++;
     }
@@ -89,6 +97,7 @@ submitBtn.addEventListener("click", () => {
   scoreDiv.textContent = `Your score is ${score} out of 5.`;
   localStorage.setItem("score", score);
 });
+
 
 
 
