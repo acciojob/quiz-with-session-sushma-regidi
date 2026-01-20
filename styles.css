@@ -1,20 +1,3 @@
-body {
-  font-family: Arial, sans-serif;
-  padding: 20px;
-}
 
-#questions > div {
-  margin-bottom: 15px;
-  padding: 10px;
-  border: 1px solid #ccc;
-}
 
-button {
-  margin-top: 10px;
-}
-
-#score {
-  margin-top: 15px;
-  font-weight: bold;
-}
 
