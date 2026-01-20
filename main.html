@@ -6,7 +6,6 @@
   <title>Quiz with Session & Local Storage</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; }
-    h2 { margin-bottom: 10px; }
     .question { margin-bottom: 15px; }
     .options label { display: block; margin: 4px 0; cursor: pointer; }
     #submit { margin-top: 20px; padding: 8px 16px; }
@@ -14,40 +13,36 @@
   </style>
 </head>
 <body>
-  <h2>Simple Quiz</h2>
-
   <div id="questions"></div>
-
-<button id="submit">Submit</button>
-
+  <button id="submit">Submit</button>
   <div id="score"></div>
 
   <script>
-    const questionsData = [
+    const questions = [
       {
         question: "What is the capital of France?",
-        options: ["Berlin", "Madrid", "Paris", "Rome"],
-        answer: 2
+        choices: ["Paris", "Berlin", "Madrid", "Rome"],
+        answer: "Paris"
       },
       {
         question: "Which language runs in a web browser?",
-        options: ["Java", "C", "Python", "JavaScript"],
-        answer: 3
+        choices: ["JavaScript", "Java", "Python", "C"],
+        answer: "JavaScript"
       },
       {
         question: "What does CSS stand for?",
-        options: ["Colorful Style Sheets", "Cascading Style Sheets", "Creative Style Sheets", "Computer Style Sheets"],
-        answer: 1
+        choices: ["Cascading Style Sheets", "Creative Style Sheets", "Computer Style Sheets", "Colorful Style Sheets"],
+        answer: "Cascading Style Sheets"
       },
       {
         question: "Which HTML tag is used for JavaScript?",
-        options: ["<js>", "<javascript>", "<script>", "<code>"],
-        answer: 2
+        choices: ["<script>", "<js>", "<javascript>", "<code>"],
+        answer: "<script>"
       },
       {
         question: "Which company developed JavaScript?",
-        options: ["Microsoft", "Apple", "Netscape", "Google"],
-        answer: 2
+        choices: ["Netscape", "Microsoft", "Apple", "Google"],
+        answer: "Netscape"
       }
     ];
 
@@ -55,43 +50,45 @@
     const submitBtn = document.getElementById("submit");
     const scoreDiv = document.getElementById("score");
 
-    // Load progress from sessionStorage
     let progress = JSON.parse(sessionStorage.getItem("progress")) || {};
 
-    // Render questions
     function renderQuestions() {
       questionsContainer.innerHTML = "";
 
-      questionsData.forEach((q, qIndex) => {
+      questions.forEach((q, qIndex) => {
         const qDiv = document.createElement("div");
         qDiv.className = "question";
 
         const qTitle = document.createElement("p");
-        qTitle.textContent = `${qIndex + 1}. ${q.question}`;
+        qTitle.textContent = q.question;
         qDiv.appendChild(qTitle);
 
         const optionsDiv = document.createElement("div");
         optionsDiv.className = "options";
 
-        q.options.forEach((opt, optIndex) => {
+        q.choices.forEach((choice) => {
           const label = document.createElement("label");
           const input = document.createElement("input");
           input.type = "radio";
           input.name = `question-${qIndex}`;
-          input.value = optIndex;
+          input.value = choice;
 
-          // Restore checked state
-          if (progress[qIndex] == optIndex) {
+          if (progress[qIndex] === choice) {
             input.checked = true;
+            input.setAttribute("checked", "true");
           }
 
           input.addEventListener("change", () => {
-            progress[qIndex] = optIndex;
+            progress[qIndex] = choice;
             sessionStorage.setItem("progress", JSON.stringify(progress));
+
+            const group = document.getElementsByName(`question-${qIndex}`);
+            group.forEach(r => r.removeAttribute("checked"));
+            input.setAttribute("checked", "true");
           });
 
           label.appendChild(input);
-          label.appendChild(document.createTextNode(" " + opt));
+          label.appendChild(document.createTextNode(" " + choice));
           optionsDiv.appendChild(label);
         });
 
@@ -100,18 +97,16 @@
       });
     }
 
-    // Calculate score
     function calculateScore() {
       let score = 0;
-      questionsData.forEach((q, index) => {
-        if (progress[index] == q.answer) {
+      questions.forEach((q, index) => {
+        if (progress[index] === q.answer) {
           score++;
         }
       });
       return score;
     }
 
-    // Submit handler
     submitBtn.addEventListener("click", () => {
       const finalScore = calculateScore();
       const scoreText = `Your score is ${finalScore} out of 5.`;
@@ -119,18 +114,12 @@
       localStorage.setItem("score", finalScore.toString());
     });
 
-    // Restore score from localStorage if exists
-    const savedScore = localStorage.getItem("score");
-    if (savedScore !== null) {
-      scoreDiv.textContent = `Your score is ${savedScore} out of 5.`;
-    }
-
-    // Initial render
     renderQuestions();
   </script>
 
 </body>
 </html>
+
 
 
 
