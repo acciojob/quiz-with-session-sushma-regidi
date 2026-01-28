@@ -4,118 +4,15 @@
 <head>
   <meta charset="UTF-8" />
   <title>Quiz with Session & Local Storage</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    .question { margin-bottom: 15px; }
-    .options label { display: block; margin: 4px 0; cursor: pointer; }
-    #submit { margin-top: 20px; padding: 8px 16px; }
-    #score { margin-top: 20px; font-weight: bold; }
-  </style>
+  
 </head>
 <body>
   <div id="questions"></div>
   <button id="submit">Submit</button>
   <div id="score"></div>
 
-  <script>
-    const questions = [
-      {
-        question: "What is the capital of France?",
-        choices: ["Paris", "Berlin", "Madrid", "Rome"],
-        answer: "Paris"
-      },
-      {
-        question: "Which language runs in a web browser?",
-        choices: ["JavaScript", "Java", "Python", "C"],
-        answer: "JavaScript"
-      },
-      {
-        question: "What does CSS stand for?",
-        choices: ["Cascading Style Sheets", "Creative Style Sheets", "Computer Style Sheets", "Colorful Style Sheets"],
-        answer: "Cascading Style Sheets"
-      },
-      {
-        question: "Which HTML tag is used for JavaScript?",
-        choices: ["<script>", "<js>", "<javascript>", "<code>"],
-        answer: "<script>"
-      },
-      {
-        question: "Which company developed JavaScript?",
-        choices: ["Netscape", "Microsoft", "Apple", "Google"],
-        answer: "Netscape"
-      }
-    ];
 
-    const questionsContainer = document.getElementById("questions");
-    const submitBtn = document.getElementById("submit");
-    const scoreDiv = document.getElementById("score");
-
-    let progress = JSON.parse(sessionStorage.getItem("progress")) || {};
-
-    function renderQuestions() {
-      questionsContainer.innerHTML = "";
-
-      questions.forEach((q, qIndex) => {
-        const qDiv = document.createElement("div");
-        qDiv.className = "question";
-
-        const qTitle = document.createElement("p");
-        qTitle.textContent = q.question;
-        qDiv.appendChild(qTitle);
-
-        const optionsDiv = document.createElement("div");
-        optionsDiv.className = "options";
-
-        q.choices.forEach((choice) => {
-          const label = document.createElement("label");
-          const input = document.createElement("input");
-          input.type = "radio";
-          input.name = `question-${qIndex}`;
-          input.value = choice;
-
-          if (progress[qIndex] === choice) {
-            input.checked = true;
-            input.setAttribute("checked", "true");
-          }
-
-          input.addEventListener("change", () => {
-            progress[qIndex] = choice;
-            sessionStorage.setItem("progress", JSON.stringify(progress));
-
-            const group = document.getElementsByName(`question-${qIndex}`);
-            group.forEach(r => r.removeAttribute("checked"));
-            input.setAttribute("checked", "true");
-          });
-
-          label.appendChild(input);
-          label.appendChild(document.createTextNode(" " + choice));
-          optionsDiv.appendChild(label);
-        });
-
-        qDiv.appendChild(optionsDiv);
-        questionsContainer.appendChild(qDiv);
-      });
-    }
-
-    function calculateScore() {
-      let score = 0;
-      questions.forEach((q, index) => {
-        if (progress[index] === q.answer) {
-          score++;
-        }
-      });
-      return score;
-    }
-
-    submitBtn.addEventListener("click", () => {
-      const finalScore = calculateScore();
-      const scoreText = `Your score is ${finalScore} out of 5.`;
-      scoreDiv.textContent = scoreText;
-      localStorage.setItem("score", finalScore.toString());
-    });
-
-    renderQuestions();
-  </script>
+   
 
 </body>
 </html>
