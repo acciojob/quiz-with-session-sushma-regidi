@@ -1,28 +1,28 @@
 const questions = [
   {
-    question: "What is the highest mountain in the world?",
-    choices: ["Mount Everest", "K2", "Kangchenjunga", "Lhotse"],
-    answer: "Mount Everest"
+    question: "What is the capital of France?",
+    choices: ["Berlin", "Madrid", "Paris", "Rome"],
+    answer: "Paris"
   },
   {
     question: "Which planet is known as the Red Planet?",
-    choices: ["Mars", "Venus", "Jupiter", "Saturn"],
+    choices: ["Earth", "Mars", "Jupiter", "Saturn"],
     answer: "Mars"
   },
   {
-    question: "Who wrote the Ramayana?",
-    choices: ["Valmiki", "Ved Vyasa", "Kalidasa", "Tulsidas"],
-    answer: "Valmiki"
+    question: "What is the largest ocean on Earth?",
+    choices: ["Atlantic", "Indian", "Arctic", "Pacific"],
+    answer: "Pacific"
   },
   {
-    question: "What is the capital of Australia?",
-    choices: ["Sydney", "Melbourne", "Canberra", "Perth"],
-    answer: "Canberra"
+    question: "Who wrote 'Hamlet'?",
+    choices: ["Charles Dickens", "Mark Twain", "William Shakespeare", "Jane Austen"],
+    answer: "William Shakespeare"
   },
   {
-    question: "Which gas do plants absorb from the atmosphere?",
-    choices: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Hydrogen"],
-    answer: "Carbon Dioxide"
+    question: "What is the chemical symbol for water?",
+    choices: ["O2", "CO2", "H2O", "NaCl"],
+    answer: "H2O"
   }
 ];
 
@@ -49,8 +49,7 @@ function renderQuestions() {
   questions.forEach((q, index) => {
     const questionDiv = document.createElement("div");
 
-    // ✅ Use span inside div for question text, NOT <p>
-    // so that <p> does not become an extra child counted by Cypress
+    // Question text as span (not p) to avoid extra block child elements
     const questionText = document.createElement("span");
     questionText.textContent = q.question + " ";
     questionDiv.appendChild(questionText);
@@ -61,7 +60,7 @@ function renderQuestions() {
       radio.name = "question-" + index;
       radio.value = choice;
 
-      // ✅ Restore saved answer using setAttribute so
+      // Restore saved answer using setAttribute so
       // Cypress selector [checked="true"] works correctly
       if (progress[index] === choice) {
         radio.setAttribute("checked", "true");
@@ -69,12 +68,12 @@ function renderQuestions() {
       }
 
       radio.addEventListener("change", function () {
-        // Remove checked attribute from all siblings in this group
+        // Remove checked attribute from all radios in this group
         const siblings = questionDiv.querySelectorAll("input[type='radio']");
         siblings.forEach(function (r) {
           r.removeAttribute("checked");
         });
-        // Set on the selected one
+        // Set checked attribute on selected radio
         radio.setAttribute("checked", "true");
 
         const current = loadProgress();
@@ -89,7 +88,7 @@ function renderQuestions() {
     questionsDiv.appendChild(questionDiv);
   });
 
-  // ✅ Restore score display from localStorage after refresh
+  // Restore score display from localStorage after refresh
   const savedScore = localStorage.getItem("score");
   if (savedScore !== null) {
     scoreDiv.textContent = "Your score is " + savedScore + " out of 5.";
