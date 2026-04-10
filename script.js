@@ -27,9 +27,10 @@ const questions = [
 ];
 
 const questionsDiv = document.getElementById("questions");
-const submitBtn = document.getElementById("submit");
-const scoreDiv = document.getElementById("score");
+const submitBtn    = document.getElementById("submit");
+const scoreDiv     = document.getElementById("score");
 
+/* ── Storage helpers ───────────────────────────── */
 function loadProgress() {
   try {
     return JSON.parse(sessionStorage.getItem("progress")) || {};
@@ -39,77 +40,109 @@ function loadProgress() {
 }
 
 function saveProgress(progress) {
-  sessionStorage.setItem("progress", JSON.stringify(progress));
+  try {
+    sessionStorage.setItem("progress", JSON.stringify(progress));
+  } catch (e) { /* ignore */ }
 }
 
+function loadScore() {
+  try {
+    return localStorage.getItem("score");
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveScore(score) {
+  try {
+    localStorage.setItem("score", String(score));
+  } catch (e) { /* ignore */ }
+}
+
+/* ── Render questions ──────────────────────────── */
 function renderQuestions() {
   const progress = loadProgress();
   questionsDiv.innerHTML = "";
 
-  questions.forEach((q, index) => {
-    const questionDiv = document.createElement("div");
+  questions.forEach((q, qi) => {
+    const card = document.createElement("div");
 
-    // Question text as span (not p) to avoid extra block child elements
-    const questionText = document.createElement("span");
-    questionText.textContent = q.question + " ";
-    questionDiv.appendChild(questionText);
+    const qNum = document.createElement("p");
+    qNum.className = "q-number";
+    qNum.textContent = `Question ${qi + 1} of ${questions.length}`;
 
-    q.choices.forEach((choice) => {
+    const qText = document.createElement("p");
+    qText.className = "q-text";
+    qText.textContent = q.question;
+
+    const choicesDiv = document.createElement("div");
+    choicesDiv.className = "choices";
+
+    q.choices.forEach(choice => {
+      const label = document.createElement("label");
+      label.className = "choice-label";
+
       const radio = document.createElement("input");
-      radio.type = "radio";
-      radio.name = "question-" + index;
-      radio.value = choice;
+      radio.type    = "radio";
+      radio.name    = `question-${qi}`;
+      radio.value   = choice;
 
-      // Restore saved answer using setAttribute so
-      // Cypress selector [checked="true"] works correctly
-      if (progress[index] === choice) {
-        radio.setAttribute("checked", "true");
+      // Restore saved answer from sessionStorage
+      if (progress[qi] === choice) {
         radio.checked = true;
       }
 
-      radio.addEventListener("change", function () {
-        // Remove checked attribute from all radios in this group
-        const siblings = questionDiv.querySelectorAll("input[type='radio']");
-        siblings.forEach(function (r) {
-          r.removeAttribute("checked");
-        });
-        // Set checked attribute on selected radio
-        radio.setAttribute("checked", "true");
-
+      // Save to sessionStorage on change
+      radio.addEventListener("change", () => {
         const current = loadProgress();
-        current[index] = choice;
+        current[qi] = choice;
         saveProgress(current);
       });
 
-      questionDiv.appendChild(radio);
-      questionDiv.appendChild(document.createTextNode(" " + choice + "  "));
+      label.appendChild(radio);
+      label.appendChild(document.createTextNode(choice));
+      choicesDiv.appendChild(label);
     });
 
-    questionsDiv.appendChild(questionDiv);
+    card.appendChild(qNum);
+    card.appendChild(qText);
+    card.appendChild(choicesDiv);
+    questionsDiv.appendChild(card);
   });
+}
 
-  // Restore score display from localStorage after refresh
-  const savedScore = localStorage.getItem("score");
-  if (savedScore !== null) {
-    scoreDiv.textContent = "Your score is " + savedScore + " out of 5.";
+/* ── Display persisted score on load ──────────── */
+function displayStoredScore() {
+  const saved = loadScore();
+  if (saved !== null) {
+    scoreDiv.textContent = `Your score is ${saved} out of ${questions.length}.`;
+    scoreDiv.classList.add("show");
   }
 }
 
-submitBtn.addEventListener("click", function () {
+/* ── Submit handler ────────────────────────────── */
+submitBtn.addEventListener("click", () => {
   const progress = loadProgress();
   let score = 0;
 
-  questions.forEach(function (q, index) {
-    if (progress[index] === q.answer) {
+  questions.forEach((q, qi) => {
+    if (progress[qi] === q.answer) {
       score++;
     }
   });
 
-  scoreDiv.textContent = "Your score is " + score + " out of 5.";
-  localStorage.setItem("score", String(score));
+  saveScore(score);
+
+  scoreDiv.classList.remove("show");
+  // Force reflow so animation replays
+  void scoreDiv.offsetWidth;
+  scoreDiv.textContent = `Your score is ${score} out of ${questions.length}.`;
+  scoreDiv.classList.add("show");
 });
 
+/* ── Init ──────────────────────────────────────── */
 renderQuestions();
+displayStoredScore();
 
 
 
