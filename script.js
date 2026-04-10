@@ -30,9 +30,6 @@ const questionsDiv = document.getElementById("questions");
 const submitBtn = document.getElementById("submit");
 const scoreDiv = document.getElementById("score");
 
-// ----------------------
-// Load saved progress from sessionStorage
-// ----------------------
 function loadProgress() {
   try {
     return JSON.parse(sessionStorage.getItem("progress")) || {};
@@ -41,16 +38,10 @@ function loadProgress() {
   }
 }
 
-// ----------------------
-// Save progress to sessionStorage
-// ----------------------
 function saveProgress(progress) {
   sessionStorage.setItem("progress", JSON.stringify(progress));
 }
 
-// ----------------------
-// Render all questions
-// ----------------------
 function renderQuestions() {
   const progress = loadProgress();
   questionsDiv.innerHTML = "";
@@ -70,13 +61,20 @@ function renderQuestions() {
       radio.name = `question-${index}`;
       radio.value = choice;
 
-      // Restore saved answer if exists
+      // ✅ KEY FIX: use setAttribute so Cypress can detect [checked="true"]
       if (progress[index] === choice) {
+        radio.setAttribute("checked", "true");
         radio.checked = true;
       }
 
-      // Save answer to sessionStorage on change
       radio.addEventListener("change", () => {
+        // Remove checked attribute from all radios in this question
+        const allRadios = questionDiv.querySelectorAll("input[type='radio']");
+        allRadios.forEach(r => r.removeAttribute("checked"));
+
+        // Set checked attribute on selected radio
+        radio.setAttribute("checked", "true");
+
         const current = loadProgress();
         current[index] = choice;
         saveProgress(current);
@@ -91,16 +89,13 @@ function renderQuestions() {
     questionsDiv.appendChild(questionDiv);
   });
 
-  // Restore score display from localStorage if available
+  // Restore score from localStorage if present
   const savedScore = localStorage.getItem("score");
   if (savedScore !== null) {
     scoreDiv.textContent = `Your score is ${savedScore} out of 5.`;
   }
 }
 
-// ----------------------
-// Submit handler
-// ----------------------
 submitBtn.addEventListener("click", () => {
   const progress = loadProgress();
   let score = 0;
@@ -111,16 +106,10 @@ submitBtn.addEventListener("click", () => {
     }
   });
 
-  // Display score
   scoreDiv.textContent = `Your score is ${score} out of 5.`;
-
-  // Save score to localStorage
-  localStorage.setItem("score", score);
+  localStorage.setItem("score", String(score));
 });
 
-// ----------------------
-// Init
-// ----------------------
 renderQuestions();
 
 
