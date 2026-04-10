@@ -49,30 +49,32 @@ function renderQuestions() {
   questions.forEach((q, index) => {
     const questionDiv = document.createElement("div");
 
-    const questionText = document.createElement("p");
-    questionText.textContent = q.question;
+    // ✅ Use span inside div for question text, NOT <p>
+    // so that <p> does not become an extra child counted by Cypress
+    const questionText = document.createElement("span");
+    questionText.textContent = q.question + " ";
     questionDiv.appendChild(questionText);
 
     q.choices.forEach((choice) => {
-      const label = document.createElement("label");
-
       const radio = document.createElement("input");
       radio.type = "radio";
-      radio.name = `question-${index}`;
+      radio.name = "question-" + index;
       radio.value = choice;
 
-      // ✅ KEY FIX: use setAttribute so Cypress can detect [checked="true"]
+      // ✅ Restore saved answer using setAttribute so
+      // Cypress selector [checked="true"] works correctly
       if (progress[index] === choice) {
         radio.setAttribute("checked", "true");
         radio.checked = true;
       }
 
-      radio.addEventListener("change", () => {
-        // Remove checked attribute from all radios in this question
-        const allRadios = questionDiv.querySelectorAll("input[type='radio']");
-        allRadios.forEach(r => r.removeAttribute("checked"));
-
-        // Set checked attribute on selected radio
+      radio.addEventListener("change", function () {
+        // Remove checked attribute from all siblings in this group
+        const siblings = questionDiv.querySelectorAll("input[type='radio']");
+        siblings.forEach(function (r) {
+          r.removeAttribute("checked");
+        });
+        // Set on the selected one
         radio.setAttribute("checked", "true");
 
         const current = loadProgress();
@@ -80,33 +82,31 @@ function renderQuestions() {
         saveProgress(current);
       });
 
-      label.appendChild(radio);
-      label.appendChild(document.createTextNode(choice));
-      questionDiv.appendChild(label);
-      questionDiv.appendChild(document.createElement("br"));
+      questionDiv.appendChild(radio);
+      questionDiv.appendChild(document.createTextNode(" " + choice + "  "));
     });
 
     questionsDiv.appendChild(questionDiv);
   });
 
-  // Restore score from localStorage if present
+  // ✅ Restore score display from localStorage after refresh
   const savedScore = localStorage.getItem("score");
   if (savedScore !== null) {
-    scoreDiv.textContent = `Your score is ${savedScore} out of 5.`;
+    scoreDiv.textContent = "Your score is " + savedScore + " out of 5.";
   }
 }
 
-submitBtn.addEventListener("click", () => {
+submitBtn.addEventListener("click", function () {
   const progress = loadProgress();
   let score = 0;
 
-  questions.forEach((q, index) => {
+  questions.forEach(function (q, index) {
     if (progress[index] === q.answer) {
       score++;
     }
   });
 
-  scoreDiv.textContent = `Your score is ${score} out of 5.`;
+  scoreDiv.textContent = "Your score is " + score + " out of 5.";
   localStorage.setItem("score", String(score));
 });
 
