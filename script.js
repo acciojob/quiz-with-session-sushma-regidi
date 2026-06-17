@@ -1,148 +1,131 @@
+// ─── Quiz Data ───────────────────────────────────────────────────────────────
 const questions = [
   {
-    question: "What is the capital of France?",
-    choices: ["Berlin", "Madrid", "Paris", "Rome"],
+    text: "What is the capital of France?",
+    options: ["Berlin", "Madrid", "Paris", "Rome"],
     answer: "Paris"
   },
   {
-    question: "Which planet is known as the Red Planet?",
-    choices: ["Earth", "Mars", "Jupiter", "Saturn"],
+    text: "Which planet is known as the Red Planet?",
+    options: ["Earth", "Mars", "Jupiter", "Saturn"],
     answer: "Mars"
   },
   {
-    question: "What is the largest ocean on Earth?",
-    choices: ["Atlantic", "Indian", "Arctic", "Pacific"],
-    answer: "Pacific"
+    text: "What is 2 + 2?",
+    options: ["3", "4", "5", "6"],
+    answer: "4"
   },
   {
-    question: "Who wrote 'Hamlet'?",
-    choices: ["Charles Dickens", "Mark Twain", "William Shakespeare", "Jane Austen"],
-    answer: "William Shakespeare"
+    text: "Which language runs in a web browser?",
+    options: ["Python", "Java", "C++", "JavaScript"],
+    answer: "JavaScript"
   },
   {
-    question: "What is the chemical symbol for water?",
-    choices: ["O2", "CO2", "H2O", "NaCl"],
-    answer: "H2O"
+    text: "What does HTML stand for?",
+    options: [
+      "Hyper Text Markup Language",
+      "High Tech Modern Language",
+      "Hyper Transfer Markup Language",
+      "Home Tool Markup Language"
+    ],
+    answer: "Hyper Text Markup Language"
   }
 ];
-
-const questionsDiv = document.getElementById("questions");
-const submitBtn    = document.getElementById("submit");
-const scoreDiv     = document.getElementById("score");
-
-/* ── Storage helpers ───────────────────────────── */
+ 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+ 
+/** Read saved progress from sessionStorage (returns {} if nothing saved). */
 function loadProgress() {
   try {
     return JSON.parse(sessionStorage.getItem("progress")) || {};
-  } catch (e) {
+  } catch {
     return {};
   }
 }
-
+ 
+/** Persist the current progress object to sessionStorage. */
 function saveProgress(progress) {
-  try {
-    sessionStorage.setItem("progress", JSON.stringify(progress));
-  } catch (e) { /* ignore */ }
+  sessionStorage.setItem("progress", JSON.stringify(progress));
 }
-
-function loadScore() {
-  try {
-    return localStorage.getItem("score");
-  } catch (e) {
-    return null;
-  }
-}
-
-function saveScore(score) {
-  try {
-    localStorage.setItem("score", String(score));
-  } catch (e) { /* ignore */ }
-}
-
-/* ── Render questions ──────────────────────────── */
-function renderQuestions() {
-  const progress = loadProgress();
-  questionsDiv.innerHTML = "";
-
+ 
+// ─── Build UI ─────────────────────────────────────────────────────────────────
+function buildQuiz() {
+  const container = document.getElementById("questions");
+  const progress  = loadProgress();
+ 
   questions.forEach((q, qi) => {
+    // Wrapper div for each question
     const card = document.createElement("div");
-
-    const qNum = document.createElement("p");
-    qNum.className = "q-number";
-    qNum.textContent = `Question ${qi + 1} of ${questions.length}`;
-
-    const qText = document.createElement("p");
-    qText.className = "q-text";
-    qText.textContent = q.question;
-
-    const choicesDiv = document.createElement("div");
-    choicesDiv.className = "choices";
-
-    q.choices.forEach(choice => {
+ 
+    // Question text
+    const heading = document.createElement("p");
+    heading.className = "question-text";
+    heading.textContent = `${qi + 1}. ${q.text}`;
+    card.appendChild(heading);
+ 
+    // Answer options
+    q.options.forEach((opt) => {
       const label = document.createElement("label");
-      label.className = "choice-label";
-
+      label.className = "option-label";
+ 
       const radio = document.createElement("input");
-      radio.type    = "radio";
-      radio.name    = `question-${qi}`;
-      radio.value   = choice;
-
-      // Restore saved answer from sessionStorage
-      if (progress[qi] === choice) {
+      radio.type  = "radio";
+      radio.name  = `question-${qi}`;
+      radio.value = opt;
+ 
+      // Restore saved answer (if any)
+      if (progress[qi] === opt) {
         radio.checked = true;
       }
-
-      // Save to sessionStorage on change
+ 
+      // Persist selection whenever the user picks an answer
       radio.addEventListener("change", () => {
         const current = loadProgress();
-        current[qi] = choice;
+        current[qi]   = opt;
         saveProgress(current);
       });
-
+ 
       label.appendChild(radio);
-      label.appendChild(document.createTextNode(choice));
-      choicesDiv.appendChild(label);
+      label.appendChild(document.createTextNode(opt));
+      card.appendChild(label);
     });
-
-    card.appendChild(qNum);
-    card.appendChild(qText);
-    card.appendChild(choicesDiv);
-    questionsDiv.appendChild(card);
+ 
+    container.appendChild(card);
   });
 }
-
-/* ── Display persisted score on load ──────────── */
-function displayStoredScore() {
-  const saved = loadScore();
-  if (saved !== null) {
-    scoreDiv.textContent = `Your score is ${saved} out of ${questions.length}.`;
-    scoreDiv.classList.add("show");
-  }
-}
-
-/* ── Submit handler ────────────────────────────── */
-submitBtn.addEventListener("click", () => {
+ 
+// ─── Score Logic ──────────────────────────────────────────────────────────────
+function submitQuiz() {
   const progress = loadProgress();
   let score = 0;
-
+ 
   questions.forEach((q, qi) => {
     if (progress[qi] === q.answer) {
       score++;
     }
   });
-
-  saveScore(score);
-
-  scoreDiv.classList.remove("show");
-  // Force reflow so animation replays
-  void scoreDiv.offsetWidth;
-  scoreDiv.textContent = `Your score is ${score} out of ${questions.length}.`;
-  scoreDiv.classList.add("show");
+ 
+  // Display result
+  document.getElementById("score").textContent =
+    `Your score is ${score} out of ${questions.length}.`;
+ 
+  // Persist score in localStorage
+  localStorage.setItem("score", score);
+}
+ 
+// ─── Init ─────────────────────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
+  buildQuiz();
+ 
+  // Restore last score display if available
+  const savedScore = localStorage.getItem("score");
+  if (savedScore !== null) {
+    document.getElementById("score").textContent =
+      `Your score is ${savedScore} out of ${questions.length}.`;
+  }
+ 
+  document.getElementById("submit").addEventListener("click", submitQuiz);
 });
-
-/* ── Init ──────────────────────────────────────── */
-renderQuestions();
-displayStoredScore();
 
 
 
