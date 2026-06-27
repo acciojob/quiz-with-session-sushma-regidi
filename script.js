@@ -15,9 +15,9 @@ const questions = [
     correct: "India"
   },
   {
-    question: "Which planet is known as the Red Planet?",
+    question: "Which is the largest planet in our solar system?",
     choices: ["Earth", "Mars", "Jupiter", "Saturn"],
-    correct: "Mars"
+    correct: "Jupiter"
   },
   {
     question: "What is the largest ocean?",
