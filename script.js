@@ -5,9 +5,9 @@ const questions = [
     correct: "Paris"
   },
   {
-    question: "What is 2 + 2?",
-    choices: ["3", "4", "5", "6"],
-    correct: "4"
+    question: "What is the highest mountain in the world?",
+    choices: ["Mount Everest", "Mount Kilimanjaro", "Mount Fuji", "Mount Rushmore"],
+    correct: "Mount Everest"
   },
   {
     question: "What is the color of the sky?",
