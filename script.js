@@ -1,131 +1,224 @@
-// ─── Quiz Data ───────────────────────────────────────────────────────────────
-const questions = [
+const quizData = [
   {
-    text: "What is the capital of France?",
-    options: ["Berlin", "Madrid", "Paris", "Rome"],
-    answer: "Paris"
-  },
-  {
-    text: "Which planet is known as the Red Planet?",
-    options: ["Earth", "Mars", "Jupiter", "Saturn"],
-    answer: "Mars"
-  },
-  {
-    text: "What is 2 + 2?",
-    options: ["3", "4", "5", "6"],
-    answer: "4"
-  },
-  {
-    text: "Which language runs in a web browser?",
-    options: ["Python", "Java", "C++", "JavaScript"],
-    answer: "JavaScript"
-  },
-  {
-    text: "What does HTML stand for?",
+    question: "What does HTML stand for?",
     options: [
       "Hyper Text Markup Language",
       "High Tech Modern Language",
       "Hyper Transfer Markup Language",
       "Home Tool Markup Language"
     ],
-    answer: "Hyper Text Markup Language"
+    correct: 0
+  },
+  {
+    question: "Which keyword declares a variable in JavaScript?",
+    options: ["var", "int", "dim", "define"],
+    correct: 0
+  },
+  {
+    question: "What does CSS stand for?",
+    options: [
+      "Cascading Style Sheets",
+      "Computer Style Sheets",
+      "Creative Style System",
+      "Coded Style Syntax"
+    ],
+    correct: 0
+  },
+  {
+    question: "Which method adds an element to the end of an array in JavaScript?",
+    options: ["push()", "pop()", "shift()", "append()"],
+    correct: 0
+  },
+  {
+    question: "What tag is used to link a CSS file in HTML?",
+    options: ["<link>", "<style>", "<css>", "<script>"],
+    correct: 0
   }
 ];
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+const questionsContainer = document.getElementById("questions");
+const submitBtn = document.getElementById("submit");
+const scoreDiv = document.getElementById("score");
 
-/** Read saved progress from sessionStorage (returns {} if nothing saved). */
 function loadProgress() {
   try {
-    return JSON.parse(sessionStorage.getItem("progress")) || {};
+    const saved = sessionStorage.getItem("progress");
+    return saved ? JSON.parse(saved) : {};
   } catch {
     return {};
   }
 }
 
-/** Persist the current progress object to sessionStorage. */
 function saveProgress(progress) {
   sessionStorage.setItem("progress", JSON.stringify(progress));
 }
 
-// ─── Build UI ─────────────────────────────────────────────────────────────────
-function buildQuiz() {
-  const container = document.getElementById("questions");
-  const progress  = loadProgress();
+function renderQuestions() {
+  const progress = loadProgress();
 
-  questions.forEach((q, qi) => {
-    // Wrapper div for each question
-    const card = document.createElement("div");
+  quizData.forEach((item, qIndex) => {
+    const div = document.createElement("div");
 
-    // Question text
-    const heading = document.createElement("p");
-    heading.className = "question-text";
-    heading.textContent = `${qi + 1}. ${q.text}`;
-    card.appendChild(heading);
+    const p = document.createElement("p");
+    p.textContent = `${qIndex + 1}. ${item.question}`;
+    div.appendChild(p);
 
-    // Answer options
-    q.options.forEach((opt) => {
+    item.options.forEach((option, oIndex) => {
       const label = document.createElement("label");
-      label.className = "option-label";
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = `question${qIndex}`;
+      input.value = oIndex;
 
-      const radio = document.createElement("input");
-      radio.type  = "radio";
-      radio.name  = `question-${qi}`;
-      radio.value = opt;
-
-      // Restore saved answer (if any)
-      if (progress[qi] === opt) {
-        radio.checked = true;
+      if (progress[qIndex] !== undefined && parseInt(progress[qIndex]) === oIndex) {
+        input.checked = true;
       }
 
-      // Persist selection whenever the user picks an answer
-      radio.addEventListener("change", () => {
+      input.addEventListener("change", () => {
         const current = loadProgress();
-        current[qi]   = opt;
+        current[qIndex] = oIndex;
         saveProgress(current);
       });
 
-      label.appendChild(radio);
-      label.appendChild(document.createTextNode(opt));
-      card.appendChild(label);
+      label.appendChild(input);
+      label.appendChild(document.createTextNode(option));
+      div.appendChild(label);
     });
 
-    container.appendChild(card);
+    questionsContainer.appendChild(div);
   });
+
+  const storedScore = localStorage.getItem("score");
+  if (storedScore !== null) {
+    scoreDiv.textContent = `Your score is ${storedScore} out of 5.`;
+  }
 }
 
-// ─── Score Logic ──────────────────────────────────────────────────────────────
-function submitQuiz() {
+submitBtn.addEventListener("click", () => {
   const progress = loadProgress();
   let score = 0;
 
-  questions.forEach((q, qi) => {
-    if (progress[qi] === q.answer) {
+  quizData.forEach((item, qIndex) => {
+    if (progress[qIndex] !== undefined && parseInt(progress[qIndex]) === item.correct) {
       score++;
     }
   });
 
-  // Display result
-  document.getElementById("score").textContent =
-    `Your score is ${score} out of ${questions.length}.`;
-
-  // Persist score in localStorage
+  scoreDiv.textContent = `Your score is ${score} out of 5.`;
   localStorage.setItem("score", score);
+});
+
+renderQuestions();const quizData = [
+  {
+    question: "What does HTML stand for?",
+    options: [
+      "Hyper Text Markup Language",
+      "High Tech Modern Language",
+      "Hyper Transfer Markup Language",
+      "Home Tool Markup Language"
+    ],
+    correct: 0
+  },
+  {
+    question: "Which keyword declares a variable in JavaScript?",
+    options: ["var", "int", "dim", "define"],
+    correct: 0
+  },
+  {
+    question: "What does CSS stand for?",
+    options: [
+      "Cascading Style Sheets",
+      "Computer Style Sheets",
+      "Creative Style System",
+      "Coded Style Syntax"
+    ],
+    correct: 0
+  },
+  {
+    question: "Which method adds an element to the end of an array in JavaScript?",
+    options: ["push()", "pop()", "shift()", "append()"],
+    correct: 0
+  },
+  {
+    question: "What tag is used to link a CSS file in HTML?",
+    options: ["<link>", "<style>", "<css>", "<script>"],
+    correct: 0
+  }
+];
+
+const questionsContainer = document.getElementById("questions");
+const submitBtn = document.getElementById("submit");
+const scoreDiv = document.getElementById("score");
+
+function loadProgress() {
+  try {
+    const saved = sessionStorage.getItem("progress");
+    return saved ? JSON.parse(saved) : {};
+  } catch {
+    return {};
+  }
 }
 
-// ─── Init ─────────────────────────────────────────────────────────────────────
-document.addEventListener("DOMContentLoaded", () => {
-  buildQuiz();
+function saveProgress(progress) {
+  sessionStorage.setItem("progress", JSON.stringify(progress));
+}
 
-  // Restore last score display if available
-  const savedScore = localStorage.getItem("score");
-  if (savedScore !== null) {
-    document.getElementById("score").textContent =
-      `Your score is ${savedScore} out of ${questions.length}.`;
+function renderQuestions() {
+  const progress = loadProgress();
+
+  quizData.forEach((item, qIndex) => {
+    const div = document.createElement("div");
+
+    const p = document.createElement("p");
+    p.textContent = `${qIndex + 1}. ${item.question}`;
+    div.appendChild(p);
+
+    item.options.forEach((option, oIndex) => {
+      const label = document.createElement("label");
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = `question${qIndex}`;
+      input.value = oIndex;
+
+      if (progress[qIndex] !== undefined && parseInt(progress[qIndex]) === oIndex) {
+        input.checked = true;
+      }
+
+      input.addEventListener("change", () => {
+        const current = loadProgress();
+        current[qIndex] = oIndex;
+        saveProgress(current);
+      });
+
+      label.appendChild(input);
+      label.appendChild(document.createTextNode(option));
+      div.appendChild(label);
+    });
+
+    questionsContainer.appendChild(div);
+  });
+
+  const storedScore = localStorage.getItem("score");
+  if (storedScore !== null) {
+    scoreDiv.textContent = `Your score is ${storedScore} out of 5.`;
   }
+}
 
-  document.getElementById("submit").addEventListener("click", submitQuiz);
+submitBtn.addEventListener("click", () => {
+  const progress = loadProgress();
+  let score = 0;
+
+  quizData.forEach((item, qIndex) => {
+    if (progress[qIndex] !== undefined && parseInt(progress[qIndex]) === item.correct) {
+      score++;
+    }
+  });
+
+  scoreDiv.textContent = `Your score is ${score} out of 5.`;
+  localStorage.setItem("score", score);
 });
+
+renderQuestions();
 
 
 
