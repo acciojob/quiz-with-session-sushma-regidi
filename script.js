@@ -1,4 +1,4 @@
-const questions = [
+const quizQuestions = [
   {
     question: "What is the capital of France?",
     choices: ["Paris", "London", "Berlin", "Madrid"],
@@ -6,13 +6,13 @@ const questions = [
   },
   {
     question: "What is the highest mountain in the world?",
-    choices: ["Mount Everest", "Mount Kilimanjaro", "Mount Fuji", "Mount Rushmore"],
-    correct: "Mount Everest"
+    choices: ["Everest", "Mount Kilimanjaro", "Mount Fuji", "Mount Rushmore"],
+    correct: "Everest"
   },
   {
     question: "What is the largest country by area?",
-    choices: ["India", "china", "srilanka", "bangaladesh"],
-    correct: "India"
+    choices: ["Russia", "Canada", "China", "USA"],
+    correct: "Canada"
   },
   {
     question: "Which is the largest planet in our solar system?",
@@ -21,8 +21,8 @@ const questions = [
   },
   {
     question: "What is the capital of Canada?",
-    choices: ["Ottawa", "Indian", "Arctic", "Pacific"],
-    correct: "Ottawa"
+    choices: ["Ottawa", "Toronto", "Vancouver", "Montreal"],
+    correct: "Toronto"
   }
 ];
 
@@ -47,7 +47,7 @@ function renderQuestions() {
   questionsContainer.innerHTML = "";
   const progress = loadProgress();
 
-  questions.forEach((item, qIndex) => {
+  quizQuestions.forEach((item, qIndex) => {
     const div = document.createElement("div");
 
     const p = document.createElement("p");
@@ -87,7 +87,7 @@ submitBtn.addEventListener("click", () => {
   const progress = loadProgress();
   let score = 0;
 
-  questions.forEach((item, qIndex) => {
+  quizQuestions.forEach((item, qIndex) => {
     if (progress[qIndex] !== undefined && progress[qIndex] === item.correct) {
       score++;
     }
