@@ -10,9 +10,9 @@ const questions = [
     correct: "Mount Everest"
   },
   {
-    question: "What is the color of the sky?",
-    choices: ["Blue", "Green", "Red", "Yellow"],
-    correct: "Blue"
+    question: "What is the largest country by area?",
+    choices: ["India", "china", "srilanka", "bangaladesh"],
+    correct: "India"
   },
   {
     question: "Which planet is known as the Red Planet?",
