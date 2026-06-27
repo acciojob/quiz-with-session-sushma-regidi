@@ -1,53 +1,28 @@
 const questions = [
   {
-    question: "What does HTML stand for?",
-    choices: [
-      "Hyper Text Markup Language",
-      "High Tech Modern Language",
-      "Hyper Transfer Markup Language",
-      "Home Tool Markup Language"
-    ],
-    correct: "Hyper Text Markup Language"
+    question: "What is the capital of France?",
+    choices: ["Paris", "London", "Berlin", "Madrid"],
+    correct: "Paris"
   },
   {
-    question: "What does CSS stand for?",
-    choices: [
-      "Cascading Style Sheets",
-      "Computer Style Sheets",
-      "Creative Style System",
-      "Coded Style Syntax"
-    ],
-    correct: "Cascading Style Sheets"
+    question: "What is 2 + 2?",
+    choices: ["3", "4", "5", "6"],
+    correct: "4"
   },
   {
-    question: "Which language is used for web scripting?",
-    choices: [
-      "JavaScript",
-      "Python",
-      "C++",
-      "Java"
-    ],
-    correct: "JavaScript"
+    question: "What is the color of the sky?",
+    choices: ["Blue", "Green", "Red", "Yellow"],
+    correct: "Blue"
   },
   {
-    question: "What does API stand for?",
-    choices: [
-      "Application Program Interface",
-      "Application Programming Interface",
-      "Applied Program Interface",
-      "Applied Programming Interface"
-    ],
-    correct: "Applied Program Interface"
+    question: "Which planet is known as the Red Planet?",
+    choices: ["Earth", "Mars", "Jupiter", "Saturn"],
+    correct: "Mars"
   },
   {
-    question: "Which of the following is a JavaScript framework?",
-    choices: [
-      "Django",
-      "Laravel",
-      "React",
-      "Flask"
-    ],
-    correct: "React"
+    question: "What is the largest ocean?",
+    choices: ["Atlantic", "Indian", "Arctic", "Pacific"],
+    correct: "Pacific"
   }
 ];
 
@@ -69,6 +44,7 @@ function saveProgress(progress) {
 }
 
 function renderQuestions() {
+  questionsContainer.innerHTML = "";
   const progress = loadProgress();
 
   questions.forEach((item, qIndex) => {
@@ -103,12 +79,9 @@ function renderQuestions() {
 
     questionsContainer.appendChild(div);
   });
-
-  const storedScore = localStorage.getItem("score");
-  if (storedScore !== null) {
-    scoreDiv.textContent = `Your score is ${storedScore} out of 5.`;
-  }
 }
+
+renderQuestions();
 
 submitBtn.addEventListener("click", () => {
   const progress = loadProgress();
@@ -123,8 +96,6 @@ submitBtn.addEventListener("click", () => {
   scoreDiv.textContent = `Your score is ${score} out of 5.`;
   localStorage.setItem("score", String(score));
 });
-
-renderQuestions();
 
 
 
