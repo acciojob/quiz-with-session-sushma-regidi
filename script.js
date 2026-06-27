@@ -20,9 +20,9 @@ const questions = [
     correct: "Jupiter"
   },
   {
-    question: "What is the largest ocean?",
-    choices: ["Atlantic", "Indian", "Arctic", "Pacific"],
-    correct: "Pacific"
+    question: "What is the capital of Canada?",
+    choices: ["Ottawa", "Indian", "Arctic", "Pacific"],
+    correct: "Ottawa"
   }
 ];
 
